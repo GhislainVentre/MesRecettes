@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "MesRecettes",
+    "slug": "mesrecettes",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ghislainventre.mesrecettes"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#B4532A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ghislainventre.mesrecettes",
+      "permissions": [
+        "REQUEST_INSTALL_PACKAGES"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "scheme": "mesrecettes",
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MesRecettes a besoin d’accéder à vos photos pour illustrer vos recettes.",
+          "cameraPermission": "MesRecettes a besoin de l’appareil photo pour photographier vos plats.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#FBF5EC"
+        }
+      ]
+    ]
+  }
+}
