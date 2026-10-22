@@ -87,6 +87,23 @@ async function persistPhoto(uri: string): Promise<PhotoResult> {
   }
 }
 
+/**
+ * Télécharge la photo d'une recette importée dans le dossier de l'app. Sur le
+ * web on garde simplement l'adresse distante.
+ */
+export async function downloadPhoto(url: string): Promise<PhotoResult> {
+  if (Platform.OS === 'web') return { uri: url };
+  try {
+    const match = /\.(jpe?g|png|webp|gif)$/i.exec(url.split(/[?#]/)[0]);
+    const extension = match ? match[1].toLowerCase() : 'jpg';
+    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${extension}`;
+    await File.downloadFileAsync(url, new File(photosDirectory(), name));
+    return { uri: `${PHOTOS_DIR}/${name}` };
+  } catch {
+    return { error: "La photo de la recette n'a pas pu être téléchargée." };
+  }
+}
+
 /** Transforme le chemin enregistré en URI affichable par <Image>. */
 export function resolvePhotoUri(uri: string | null): string | null {
   if (!uri) return null;

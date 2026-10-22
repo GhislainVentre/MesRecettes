@@ -6,6 +6,7 @@ Application Android pour noter ses recettes de cuisine et les retrouver en cuisi
 
 - **Mes recettes** : liste triée (favoris d’abord), recherche sans accents dans le titre, les ingrédients et les notes, filtres par catégorie et favoris.
 - **Ajout et modification** : nom, catégorie (apéritif, entrée, plat, dessert, boisson, sauce, autre), photo prise ou choisie dans la galerie, nombre de personnes, temps de préparation et de cuisson, ingrédients et étapes (une ligne chacun), notes.
+- **Import depuis un site** : collez l’adresse d’une recette (Marmiton, 750g, Cuisine AZ… tout site qui publie ses recettes au format schema.org) pour pré-remplir le formulaire, photo comprise ; il ne reste qu’à vérifier et enregistrer.
 - **Fiche recette** : quantités recalculées quand on change le nombre de personnes, ingrédients et étapes à cocher au fil de la préparation, écran qui reste allumé.
 - **Mises à jour** : à chaque lancement, l’application regarde la dernière version publiée dans les Releases GitHub et propose de la télécharger et de l’installer. Les recettes sont conservées.
 
