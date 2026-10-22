@@ -8,6 +8,7 @@ export default function NewRecipeScreen() {
   return (
     <RecipeForm
       submitLabel="Enregistrer la recette"
+      allowImport
       onSubmit={(recipe) => {
         const created = addRecipe(recipe);
         router.replace({ pathname: '/recipe/[id]', params: { id: created.id } });

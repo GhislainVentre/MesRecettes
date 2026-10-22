@@ -4,18 +4,22 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CATEGORIES } from '../lib/categories';
-import { deletePhoto, pickPhoto, type PhotoSource } from '../lib/photos';
+import type { ImportedRecipe } from '../lib/importRecipe';
+import { deletePhoto, downloadPhoto, pickPhoto, type PhotoSource } from '../lib/photos';
 import { notify } from '../lib/notify';
 import { splitLines } from '../lib/recipes';
 import { colors, fonts, radius, spacing, type } from '../theme';
 import type { Category, NewRecipe } from '../types';
 import { Button } from './Button';
 import { Chip } from './Chip';
+import { ImportCard } from './ImportCard';
 import { RecipePhoto } from './RecipePhoto';
 
 interface Props {
   initial?: NewRecipe;
   submitLabel: string;
+  /** Affiche « Importer depuis un site » (création uniquement). */
+  allowImport?: boolean;
   onSubmit: (recipe: NewRecipe) => void;
 }
 
@@ -65,7 +69,7 @@ function toNumber(text: string): number | null {
 
 const toText = (value: number | null | undefined) => (value ? String(value) : '');
 
-export function RecipeForm({ initial, submitLabel, onSubmit }: Props) {
+export function RecipeForm({ initial, submitLabel, allowImport, onSubmit }: Props) {
   const insets = useSafeAreaInsets();
   const [photoUri, setPhotoUri] = useState<string | null>(initial?.photoUri ?? null);
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -79,6 +83,7 @@ export function RecipeForm({ initial, submitLabel, onSubmit }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const draftPhoto = useRef<string | null>(photoUri);
   const submitted = useRef(false);
+  const mounted = useRef(true);
 
   useEffect(() => {
     draftPhoto.current = photoUri;
@@ -86,7 +91,9 @@ export function RecipeForm({ initial, submitLabel, onSubmit }: Props) {
 
   // Photo copiée puis formulaire abandonné : on efface la copie.
   useEffect(() => {
+    mounted.current = true;
     return () => {
+      mounted.current = false;
       if (!submitted.current && draftPhoto.current !== (initial?.photoUri ?? null)) deletePhoto(draftPhoto.current);
     };
   }, [initial?.photoUri]);
@@ -104,6 +111,29 @@ export function RecipeForm({ initial, submitLabel, onSubmit }: Props) {
       return;
     }
     discardDraftPhoto(photoUri);
+    setPhotoUri(result.uri);
+  }
+
+  /** Remplit le formulaire avec la recette lue sur un site. */
+  async function applyImport(recipe: ImportedRecipe) {
+    if (recipe.title) setTitle(recipe.title);
+    if (recipe.category) setCategory(recipe.category);
+    if (recipe.servings) setServings(toText(recipe.servings));
+    setPrep(toText(recipe.prepMinutes));
+    setCook(toText(recipe.cookMinutes));
+    if (recipe.ingredients.length > 0) setIngredients(recipe.ingredients.join('\n'));
+    if (recipe.steps.length > 0) setSteps(recipe.steps.join('\n'));
+    const source = `Source : ${recipe.sourceUrl}`;
+    setNotes((current) => (current.trim() ? `${current.trim()}\n${source}` : source));
+    if (!recipe.imageUrl) return;
+    const result = await downloadPhoto(recipe.imageUrl);
+    if (!result || 'error' in result) return; // Pas de photo : la recette reste utilisable.
+    if (!mounted.current) {
+      deletePhoto(result.uri);
+      return;
+    }
+    discardDraftPhoto(draftPhoto.current);
+    draftPhoto.current = result.uri;
     setPhotoUri(result.uri);
   }
 
@@ -141,6 +171,8 @@ export function RecipeForm({ initial, submitLabel, onSubmit }: Props) {
         contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + spacing.xxl }]}
         keyboardShouldPersistTaps="handled"
       >
+        {allowImport && <ImportCard onImported={applyImport} />}
+
         <View style={styles.photoBlock}>
           <View>
             <RecipePhoto uri={photoUri} category={category} height={200} rounded={radius.xl} />
